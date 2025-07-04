@@ -24,10 +24,14 @@
       --transition: all 0.2s ease;
     }
 
-    * { box-sizing: border-box; }
+    * { 
+      box-sizing: border-box; 
+      margin: 0;
+      padding: 0;
+    }
+    
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      margin: 0;
       background: var(--background);
       color: var(--text-primary);
       line-height: 1.5;
@@ -36,7 +40,7 @@
     .header {
       background: var(--primary-color);
       color: #fff;
-      padding: 1.5rem 1rem;
+      padding: 1rem;
       text-align: center;
       box-shadow: var(--shadow-sm);
       position: sticky;
@@ -45,8 +49,7 @@
     }
 
     .header h1 {
-      margin: 0;
-      font-size: 1.5rem;
+      font-size: 1.25rem;
       font-weight: 600;
       display: flex;
       align-items: center;
@@ -55,32 +58,41 @@
     }
 
     #app {
-      max-width: 900px;
-      margin: 2rem auto;
+      max-width: 1000px;
+      margin: 1.5rem auto;
       background: var(--surface);
-      padding: 2rem;
+      padding: 1.5rem;
       border-radius: var(--radius-lg);
       box-shadow: var(--shadow-md);
     }
 
-    .input-group { 
-      margin-bottom: 1.5rem; 
+    .control-row {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      align-items: end;
+    }
+
+    .input-group {
+      flex: 1;
     }
 
     .label {
       display: block;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.25rem;
+      font-size: 0.875rem;
       font-weight: 500;
       color: var(--text-primary);
     }
 
     .input {
       width: 100%;
-      padding: 0.75rem 1rem;
-      font-size: 1rem;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.875rem;
       border: 1px solid var(--border-color);
       border-radius: var(--radius-sm);
       transition: var(--transition);
+      height: 38px;
     }
 
     .input:focus {
@@ -90,9 +102,8 @@
     }
 
     .button {
-      width: 100%;
-      padding: 0.75rem 1rem;
-      font-size: 1rem;
+      padding: 0 1rem;
+      font-size: 0.875rem;
       background: var(--primary-color);
       color: #fff;
       border: none;
@@ -103,6 +114,8 @@
       justify-content: center;
       gap: 0.5rem;
       transition: var(--transition);
+      height: 38px;
+      min-width: 100px;
     }
 
     .button:hover { 
@@ -116,7 +129,7 @@
     }
 
     .button-secondary {
-      background: var(--background);
+      background: var(--surface);
       color: var(--text-primary);
       border: 1px solid var(--border-color);
     }
@@ -126,10 +139,10 @@
     }
 
     #status {
-      margin: 1rem 0;
-      padding: 0.75rem 1rem;
+      margin: 0.75rem 0;
+      padding: 0.5rem 0.75rem;
       border-radius: var(--radius-sm);
-      font-size: 0.875rem;
+      font-size: 0.8125rem;
       border: 1px solid transparent;
     }
 
@@ -152,7 +165,7 @@
     }
 
     #replay {
-      margin-top: 1.5rem;
+      margin-top: 1rem;
       background: #1e1e1e;
       border-radius: var(--radius-md);
       overflow: hidden;
@@ -167,12 +180,13 @@
       color: var(--text-secondary);
       padding: 2rem;
       text-align: center;
+      font-size: 0.875rem;
     }
 
     .loading-spinner {
       display: inline-block;
-      width: 1rem;
-      height: 1rem;
+      width: 0.875rem;
+      height: 0.875rem;
       border: 2px solid rgba(255, 255, 255, 0.3);
       border-radius: 50%;
       border-top-color: #fff;
@@ -202,12 +216,21 @@
     @media (max-width: 640px) {
       #app {
         margin: 1rem;
-        padding: 1.25rem;
+        padding: 1rem;
         border-radius: var(--radius-md);
       }
       
       .header {
-        padding: 1rem;
+        padding: 0.75rem;
+      }
+      
+      .control-row {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      
+      .button {
+        width: 100%;
       }
     }
   </style>
@@ -215,15 +238,19 @@
 <body>
   <header class="header"><h1>🎥 rrweb 流式回放工具</h1></header>
   <div id="app">
-    <div class="input-group">
-      <label class="label" for="sessionInput">Session ID</label>
-      <input class="input" id="sessionInput" placeholder="请输入 Session ID，例如：abc-123" />
+    <div class="control-row">
+      <div class="input-group">
+        <label class="label" for="sessionInput">Session ID</label>
+        <input class="input" id="sessionInput" placeholder="例如：abc-123" />
+      </div>
+      <button class="button" id="startBtn">
+        <span id="buttonText">开始回放</span>
+        <span id="buttonSpinner" class="loading-spinner" style="display:none;"></span>
+      </button>
+      <button class="button button-secondary" id="resetBtn">
+        重置
+      </button>
     </div>
-    
-    <button class="button" id="startBtn">
-      <span id="buttonText">开始回放</span>
-      <span id="buttonSpinner" class="loading-spinner" style="display:none;"></span>
-    </button>
     
     <div class="progress-bar" id="progressBar" style="display: none;">
       <div class="progress-bar-fill" id="progressFill"></div>
@@ -234,10 +261,6 @@
     <div id="replay">
       <div id="replay-placeholder">回放内容将在此显示</div>
     </div>
-    
-    <button class="button button-secondary" id="resetBtn" style="margin-top: 1rem;">
-      重置
-    </button>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/rrweb-player@latest/dist/index.js"></script>
@@ -246,8 +269,7 @@
   'use strict';
 
   const BASE_URL = 'http://192.168.1.154:88';
-  const CHUNK_SIZE = 500;
-  const MEMORY_LIMIT = 1024 * 1024 * 50;
+  const MEMORY_LIMIT = 1024 * 1024 * 100; // 100MB 内存限制
 
   const sessionInput = document.getElementById('sessionInput');
   const startBtn = document.getElementById('startBtn');
@@ -262,17 +284,25 @@
 
   let rrPlayer = null;
   let allEvents = [];
-  let chunkBuffer = [];
   let isPlaying = false;
   let receivedBytes = 0;
   let expectedTotalChunks = 0;
   let receivedChunkCount = 0;
   let abortController = null;
+  let memoryExceeded = false;
+
+  function checkMemoryLimit() {
+    if (receivedBytes > MEMORY_LIMIT && !memoryExceeded) {
+      memoryExceeded = true;
+      throw new Error(`内存使用已超过 ${(MEMORY_LIMIT / 1024 / 1024).toFixed(0)}MB 限制`);
+    }
+    return memoryExceeded;
+  }
 
   function decompressData(base64) {
     try {
-      if (receivedBytes > MEMORY_LIMIT) {
-        throw new Error(`内存使用已超过 ${(MEMORY_LIMIT / 1024 / 1024).toFixed(0)}MB 限制`);
+      if (checkMemoryLimit()) {
+        return [];
       }
 
       const binary = atob(base64);
@@ -363,29 +393,19 @@
   }
 
   function processChunk(events) {
-    if (!Array.isArray(events) || events.length === 0) return;
+    if (!Array.isArray(events) || events.length === 0 || memoryExceeded) return;
 
-    chunkBuffer.push(...events);
-
-    if (chunkBuffer.length >= CHUNK_SIZE) {
-      allEvents.push(...chunkBuffer);
+    allEvents.push(...events);
+    
+    // 只在第一次或内存接近限制时初始化播放器
+    if (!rrPlayer || receivedBytes > MEMORY_LIMIT * 0.9) {
       const success = initPlayer(allEvents);
       if (success && isPlaying) {
         setTimeout(() => rrPlayer.getReplayer().play(), 100);
       }
-      chunkBuffer = [];
     }
 
     updateStatus();
-  }
-
-  function flushBuffer() {
-    if (chunkBuffer.length > 0) {
-      allEvents.push(...chunkBuffer);
-      initPlayer(allEvents);
-      chunkBuffer = [];
-      updateStatus();
-    }
   }
 
   function updateStatus(final = false) {
@@ -394,7 +414,10 @@
       ? Math.min(100, (receivedChunkCount / expectedTotalChunks) * 100).toFixed(1)
       : 0;
 
-    if (final) {
+    if (memoryExceeded) {
+      statusEl.textContent = `⚠️ 内存超过限制 (${memoryMB}MB)，已停止加载新数据`;
+      statusEl.className = 'error';
+    } else if (final) {
       statusEl.textContent = `✅ 加载完成，共接收 ${receivedChunkCount}/${expectedTotalChunks || '?'} 块，${memoryMB}MB`;
       statusEl.className = 'success';
     } else {
@@ -422,11 +445,11 @@
     }
 
     allEvents = [];
-    chunkBuffer = [];
     isPlaying = false;
     receivedBytes = 0;
     expectedTotalChunks = 0;
     receivedChunkCount = 0;
+    memoryExceeded = false;
 
     replayPlaceholder.style.display = 'block';
     replayPlaceholder.textContent = '回放内容将在此显示';
@@ -475,6 +498,8 @@
       let buffer = '';
 
       while (true) {
+        if (memoryExceeded) break;
+        
         const { done, value } = await reader.read();
         if (done) break;
 
@@ -501,23 +526,31 @@
                 console.error('处理数据块时出错:', err);
                 statusEl.textContent = `❌ 处理数据时出错: ${err.message}`;
                 statusEl.className = 'error';
+                if (err.message.includes('内存使用已超过')) {
+                  memoryExceeded = true;
+                }
               }
             } else if (dataJson?.type === 'done') {
-              flushBuffer();
-              updateStatus(true); // ✅ 最终状态更新
+              updateStatus(true);
             }
           }
         }
       }
 
-      flushBuffer();
+      // 最终初始化播放器（如果之前没有初始化过）
+      if (!rrPlayer && allEvents.length > 0 && !memoryExceeded) {
+        initPlayer(allEvents);
+      }
 
-      if (allEvents.length > 0) {
+      if (allEvents.length > 0 && !memoryExceeded) {
         setTimeout(() => {
           if (rrPlayer && !isPlaying) {
             rrPlayer.getReplayer().play();
           }
         }, 500);
+      } else if (memoryExceeded) {
+        statusEl.textContent = `⚠️ 内存超过限制 (${(receivedBytes / 1024 / 1024).toFixed(2)}MB)，部分数据未加载`;
+        statusEl.className = 'error';
       } else {
         statusEl.textContent = '⚠️ 未获取到任何有效事件';
         statusEl.className = 'error';
@@ -528,7 +561,6 @@
         statusEl.className = 'loading';
       } else {
         console.error('加载失败:', err);
-        flushBuffer();
         statusEl.textContent = `❌ 加载失败: ${err.message}（已接收 ${receivedChunkCount}/${expectedTotalChunks || '?'} 块）`;
         statusEl.className = 'error';
       }
@@ -543,7 +575,6 @@
   resetBtn.addEventListener('click', reset);
   replayPlaceholder.style.display = 'block';
 </script>
-
 
 </body>
 </html>
