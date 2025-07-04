@@ -208,6 +208,63 @@
       transition: width 0.3s ease;
     }
 
+    .settings-button {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border-color);
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+      z-index: 9999;
+    }
+
+    .settings-button:hover {
+      background: var(--border-color);
+    }
+
+    .settings-dialog {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--surface);
+      padding: 1.5rem;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      z-index: 100;
+      max-width: 500px;
+      width: 90%;
+    }
+
+    .settings-dialog h2 {
+      margin-bottom: 1rem;
+      font-size: 1.25rem;
+    }
+
+    .settings-dialog .buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 99;
+    }
+
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
@@ -238,6 +295,13 @@
 <body>
   <header class="header"><h1>🎥 rrweb 回放</h1></header>
   <div id="app">
+    <button class="settings-button" id="settingsBtn" title="设置">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+      </svg>
+    </button>
+    
     <div class="control-row">
       <div class="input-group">
         <label class="label" for="sessionInput">Session ID</label>
@@ -263,12 +327,28 @@
     </div>
   </div>
 
+  <!-- 设置对话框 -->
+  <div id="settingsDialog" class="settings-dialog" style="display: none;">
+    <h2>设置</h2>
+    <div class="input-group">
+      <label class="label" for="apiUrlInput">API 接口地址</label>
+      <input class="input" id="apiUrlInput" placeholder="例如：http://192.168.1.154:88" />
+    </div>
+    <div class="buttons">
+      <button class="button button-secondary" id="cancelSettingsBtn">取消</button>
+      <button class="button" id="saveSettingsBtn">保存</button>
+    </div>
+  </div>
+  <div id="overlay" class="overlay" style="display: none;"></div>
+
   <script src="https://cdn.jsdelivr.net/npm/rrweb-player@latest/dist/index.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
 <script>
   'use strict';
 
-  const BASE_URL = 'http://192.168.1.154:88';
+  // 从本地存储获取API地址，如果没有则使用默认值
+  const DEFAULT_BASE_URL = 'http://192.168.1.154:88';
+  let BASE_URL = localStorage.getItem('rrweb_replayer_api_url') || DEFAULT_BASE_URL;
   const MEMORY_LIMIT = 1024 * 1024 * 100; // 100MB 内存限制
 
   const sessionInput = document.getElementById('sessionInput');
@@ -281,6 +361,12 @@
   const replayPlaceholder = document.getElementById('replay-placeholder');
   const progressBar = document.getElementById('progressBar');
   const progressFill = document.getElementById('progressFill');
+  const settingsBtn = document.getElementById('settingsBtn');
+  const settingsDialog = document.getElementById('settingsDialog');
+  const overlay = document.getElementById('overlay');
+  const apiUrlInput = document.getElementById('apiUrlInput');
+  const cancelSettingsBtn = document.getElementById('cancelSettingsBtn');
+  const saveSettingsBtn = document.getElementById('saveSettingsBtn');
 
   let rrPlayer = null;
   let allEvents = [];
@@ -290,6 +376,56 @@
   let receivedChunkCount = 0;
   let abortController = null;
   let memoryExceeded = false;
+
+  // 初始化设置对话框
+  function initSettingsDialog() {
+    apiUrlInput.value = BASE_URL;
+  }
+
+  // 显示设置对话框
+  function showSettingsDialog() {
+    initSettingsDialog();
+    settingsDialog.style.display = 'block';
+    overlay.style.display = 'block';
+  }
+
+  // 隐藏设置对话框
+  function hideSettingsDialog() {
+    settingsDialog.style.display = 'none';
+    overlay.style.display = 'none';
+  }
+
+  // 保存设置
+  function saveSettings() {
+    const newUrl = apiUrlInput.value.trim();
+    if (newUrl) {
+      // 简单的URL验证
+      try {
+        new URL(newUrl);
+        BASE_URL = newUrl;
+        localStorage.setItem('rrweb_replayer_api_url', newUrl);
+        statusEl.textContent = '✅ API地址已更新';
+        statusEl.className = 'success';
+        setTimeout(() => {
+          if (statusEl.textContent === '✅ API地址已更新') {
+            statusEl.textContent = '等待开始';
+            statusEl.className = 'loading';
+          }
+        }, 3000);
+      } catch (e) {
+        statusEl.textContent = '⚠️ 请输入有效的URL地址 (例如: http://example.com)';
+        statusEl.className = 'error';
+        return;
+      }
+    }
+    hideSettingsDialog();
+  }
+
+  // 设置按钮事件监听
+  settingsBtn.addEventListener('click', showSettingsDialog);
+  cancelSettingsBtn.addEventListener('click', hideSettingsDialog);
+  saveSettingsBtn.addEventListener('click', saveSettings);
+  overlay.addEventListener('click', hideSettingsDialog);
 
   function checkMemoryLimit() {
     if (receivedBytes > MEMORY_LIMIT && !memoryExceeded) {
