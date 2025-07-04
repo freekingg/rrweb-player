@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>🎥 rrweb 流式回放工具</title>
@@ -26,14 +26,14 @@
 
     * { box-sizing: border-box; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
       margin: 0;
       background: var(--background);
       color: var(--text-primary);
       line-height: 1.5;
     }
 
-    header {
+    .header {
       background: var(--primary-color);
       color: #fff;
       padding: 1.5rem 1rem;
@@ -41,10 +41,10 @@
       box-shadow: var(--shadow-sm);
       position: sticky;
       top: 0;
-      z-index: 100;
+      z-index: 10;
     }
 
-    header h1 {
+    .header h1 {
       margin: 0;
       font-size: 1.5rem;
       font-weight: 600;
@@ -63,15 +63,18 @@
       box-shadow: var(--shadow-md);
     }
 
-    .input-group { margin-bottom: 1.5rem; }
+    .input-group { 
+      margin-bottom: 1.5rem; 
+    }
 
-    label {
+    .label {
       display: block;
       margin-bottom: 0.5rem;
       font-weight: 500;
+      color: var(--text-primary);
     }
 
-    input {
+    .input {
       width: 100%;
       padding: 0.75rem 1rem;
       font-size: 1rem;
@@ -80,13 +83,13 @@
       transition: var(--transition);
     }
 
-    input:focus {
+    .input:focus {
       border-color: var(--primary-color);
       outline: none;
       box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
     }
 
-    button {
+    .button {
       width: 100%;
       padding: 0.75rem 1rem;
       font-size: 1rem;
@@ -100,14 +103,26 @@
       justify-content: center;
       gap: 0.5rem;
       transition: var(--transition);
-      font-weight: 500;
     }
 
-    button:hover { background: var(--primary-hover); }
-    button:disabled {
+    .button:hover { 
+      background: var(--primary-hover); 
+    }
+    
+    .button:disabled {
       background: var(--text-secondary);
       cursor: not-allowed;
       opacity: 0.7;
+    }
+
+    .button-secondary {
+      background: var(--background);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+    }
+
+    .button-secondary:hover {
+      background: var(--border-color);
     }
 
     #status {
@@ -115,33 +130,43 @@
       padding: 0.75rem 1rem;
       border-radius: var(--radius-sm);
       font-size: 0.875rem;
+      border: 1px solid transparent;
     }
 
     .loading {
       color: var(--text-secondary);
       background: rgba(100, 116, 139, 0.1);
+      border-color: var(--border-color);
     }
 
     .error {
       color: var(--error-color);
       background: rgba(239, 68, 68, 0.1);
+      border-color: rgba(239, 68, 68, 0.2);
     }
 
     .success {
       color: var(--success-color);
       background: rgba(16, 185, 129, 0.1);
+      border-color: rgba(16, 185, 129, 0.2);
     }
 
     #replay {
       margin-top: 1.5rem;
-      min-height: 500px;
       background: #1e1e1e;
       border-radius: var(--radius-md);
+      overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
+      min-height: 400px;
       position: relative;
-      overflow: hidden;
+    }
+
+    #replay-placeholder {
+      color: var(--text-secondary);
+      padding: 2rem;
+      text-align: center;
     }
 
     .loading-spinner {
@@ -154,427 +179,416 @@
       animation: spin 1s ease-in-out infinite;
     }
 
-    #progress {
-      margin: 1rem 0;
+    .progress-bar {
+      width: 100%;
       height: 4px;
       background: var(--border-color);
       border-radius: 2px;
+      margin-top: 0.5rem;
       overflow: hidden;
-      display: none;
     }
 
-    #progressBar {
+    .progress-bar-fill {
       height: 100%;
-      width: 0%;
       background: var(--primary-color);
       transition: width 0.3s ease;
-    }
-
-    #controls {
-      display: flex;
-      gap: 0.5rem;
-      margin-top: 1rem;
-    }
-
-    #controls button {
-      flex: 1;
     }
 
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
 
-    .tooltip {
-      position: relative;
-      display: inline-block;
-    }
-
-    .tooltip .tooltiptext {
-      visibility: hidden;
-      width: 200px;
-      background-color: #333;
-      color: #fff;
-      text-align: center;
-      border-radius: 6px;
-      padding: 5px;
-      position: absolute;
-      z-index: 1;
-      bottom: 125%;
-      left: 50%;
-      transform: translateX(-50%);
-      opacity: 0;
-      transition: opacity 0.3s;
-      font-size: 0.8rem;
-    }
-
-    .tooltip:hover .tooltiptext {
-      visibility: visible;
-      opacity: 1;
-    }
-
-      .rr-controller__btns.svelte-19ke1iv button.svelte-19ke1iv {
-        width: 32px;
-        height: 32px;
-        display: flex;
-        padding: 0;
-        align-items: center;
-        justify-content: center;
-        background: darkgray;
-        border: none;
-        border-radius: 50%;
-        cursor: pointer;
-        margin: 0 2px;
+    /* 移动端适配 */
+    @media (max-width: 640px) {
+      #app {
+        margin: 1rem;
+        padding: 1.25rem;
+        border-radius: var(--radius-md);
+      }
+      
+      .header {
+        padding: 1rem;
+      }
     }
   </style>
 </head>
 <body>
-  <header><h1>🎥 rrweb 流式回放工具</h1></header>
+  <header class="header"><h1>🎥 rrweb 流式回放工具</h1></header>
   <div id="app">
     <div class="input-group">
-      <label for="sessionInput">Session ID</label>
-      <input id="sessionInput" placeholder="请输入 Session ID，例如：abc-123" />
+      <label class="label" for="sessionInput">Session ID</label>
+      <input class="input" id="sessionInput" placeholder="请输入 Session ID，例如：abc-123" />
     </div>
-    <button id="startBtn">
+    
+    <button class="button" id="startBtn">
       <span id="buttonText">开始回放</span>
       <span id="buttonSpinner" class="loading-spinner" style="display:none;"></span>
     </button>
-    <div id="progress">
-      <div id="progressBar"></div>
+    
+    <div class="progress-bar" id="progressBar" style="display: none;">
+      <div class="progress-bar-fill" id="progressFill"></div>
     </div>
+    
     <div id="status" class="loading">等待开始</div>
-    <div id="controls" style="display: none;">
-      <button id="pauseResumeBtn">暂停加载</button>
-      <button id="cancelBtn">取消加载</button>
+    
+    <div id="replay">
+      <div id="replay-placeholder">回放内容将在此显示</div>
     </div>
-    <div id="replay"></div>
+    
+    <button class="button button-secondary" id="resetBtn" style="margin-top: 1rem;">
+      重置
+    </button>
   </div>
 
-  <!-- 使用 rrweb 核心库 + 播放器 -->
-  <script src="https://cdn.jsdelivr.net/npm/rrweb@latest/dist/rrweb.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/rrweb-player@latest/dist/index.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
-
   <script>
-    // 配置
-    const BASE_URL = 'http://192.168.1.154:88';
-    const MAX_RETRIES = 3;
-    const EVENT_BUFFER_SIZE = 5000; // 缓冲事件数量阈值
-    const CHUNK_SIZE = 1024 * 1024 * 2; // 2MB 处理块大小
+    // 严格模式确保代码严谨性
+    'use strict';
 
-    // DOM 元素
+    // 配置常量
+    const BASE_URL = 'http://192.168.1.154:88';
+    const CHUNK_SIZE = 500; // 每500条事件处理一次
+    const MEMORY_LIMIT = 1024 * 1024 * 50; // 50MB内存限制
+    
+    // DOM元素
     const sessionInput = document.getElementById('sessionInput');
     const startBtn = document.getElementById('startBtn');
+    const resetBtn = document.getElementById('resetBtn');
     const buttonText = document.getElementById('buttonText');
     const buttonSpinner = document.getElementById('buttonSpinner');
     const statusEl = document.getElementById('status');
     const replayEl = document.getElementById('replay');
-    const progressEl = document.getElementById('progress');
+    const replayPlaceholder = document.getElementById('replay-placeholder');
     const progressBar = document.getElementById('progressBar');
-    const controlsEl = document.getElementById('controls');
-    const pauseResumeBtn = document.getElementById('pauseResumeBtn');
-    const cancelBtn = document.getElementById('cancelBtn');
+    const progressFill = document.getElementById('progressFill');
 
     // 状态变量
-    let replayer;
-    let isPlaying = false;
-    let isPaused = false;
-    let isCancelled = false;
-    let retryCount = 0;
-    let totalChunks = 0;
-    let processedChunks = 0;
+    let rrPlayer = null;
     let allEvents = [];
-    let decompressionWorker;
+    let chunkBuffer = [];
+    let isPlaying = false;
+    let receivedBytes = 0;
+    let totalEvents = 0;
+    let abortController = null;
 
-    // 初始化 Worker 用于解压
-    function initWorker() {
-      if (decompressionWorker) return decompressionWorker;
-      
-      const workerScript = `
-        self.importScripts('https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js');
-        
-        self.onmessage = function(e) {
-          const { base64, id } = e.data;
-          
-          try {
-            // Base64 解码
-            const binaryString = atob(base64);
-            const len = binaryString.length;
-            const bytes = new Uint8Array(len);
-            
-            for (let i = 0; i < len; i++) {
-              bytes[i] = binaryString.charCodeAt(i);
-            }
-            
-            // 解压
-            const jsonStr = pako.inflate(bytes, { to: 'string' });
-            
-            // 发送结果
-            self.postMessage({
-              success: true,
-              json: jsonStr,
-              id: id
-            });
-          } catch (error) {
-            self.postMessage({
-              success: false,
-              error: error.message,
-              id: id
-            });
-          }
-        };
-      `;
-      
-      const blob = new Blob([workerScript], { type: 'application/javascript' });
-      decompressionWorker = new Worker(URL.createObjectURL(blob));
-      
-      return decompressionWorker;
-    }
-
-    // 解压数据
-    function decompressData(base64, id) {
-      return new Promise((resolve) => {
-        const worker = initWorker();
-        const handler = (e) => {
-          if (e.data.id === id) {
-            worker.removeEventListener('message', handler);
-            resolve(e.data);
-          }
-        };
-        worker.addEventListener('message', handler);
-        worker.postMessage({ base64, id });
-      });
-    }
-
-    // 初始化播放器
-    function initPlayer(events) {
-      if (replayer) {
-        try {
-          replayer.pause();
-          replayer.$destroy();
-        } catch (e) {
-          console.warn('销毁旧播放器失败:', e);
-        }
-        replayEl.innerHTML = '';
-      }
-      
-      replayer = new rrwebPlayer({
-        target: replayEl,
-        props: {
-          events: events,
-          showController: true,
-          mouseTail: false, // 禁用鼠标轨迹减少性能开销
-          UNSAFE_replayCanvas: true,
-          triggerFocus: false
-        }
-      });
-      
-      replayer.addEventListener('ui-update-current-time', ({ payload }) => {
-        isPlaying = payload.isPlaying;
-      });
-      
-      return replayer;
-    }
-
-    // 更新播放器（当事件积累到阈值时）
-    function updatePlayer() {
-      if (allEvents.length === 0) return;
-      
+    // 严谨的解压函数（添加了详细的错误处理）
+    function decompressData(base64) {
       try {
-        initPlayer(allEvents);
-        statusEl.textContent = `✅ 已加载 ${allEvents.length} 个事件`;
-        statusEl.className = 'success';
-      } catch (error) {
-        console.error('播放器更新失败:', error);
-        statusEl.textContent = `❌ 播放器更新失败: ${error.message}`;
-        statusEl.className = 'error';
-      }
-    }
+        // 内存检查
+        if (receivedBytes > MEMORY_LIMIT) {
+          throw new Error(`内存使用已超过 ${(MEMORY_LIMIT / 1024 / 1024).toFixed(0)}MB 限制`);
+        }
 
-    // 处理数据流
-    async function processStream(reader) {
-      const decoder = new TextDecoder('utf-8');
-      let buffer = '';
-      let chunkCounter = 0;
-      
-      while (true) {
-        if (isCancelled) break;
-        if (isPaused) {
-          await new Promise(resolve => setTimeout(resolve, 500));
-          continue;
-        }
-        
-        const { done, value } = await reader.read();
-        
-        if (done) {
-          if (buffer.length > 0) {
-            await processBuffer(buffer, true);
-          }
-          break;
-        }
-        
-        buffer += decoder.decode(value, { stream: true });
-        
-        // 处理完整行
-        let newlineIndex;
-        while ((newlineIndex = buffer.indexOf('\n')) >= 0) {
-          const line = buffer.slice(0, newlineIndex).trim();
-          buffer = buffer.slice(newlineIndex + 1);
-          
-          if (line && line.startsWith('data:') && line !== 'data:[DONE]') {
-            const base64 = line.slice(5).trim();
-            const chunkId = `chunk-${chunkCounter++}`;
-            
-            try {
-              const result = await decompressData(base64, chunkId);
-              
-              if (result.success) {
-                const events = JSON.parse(result.json);
-                allEvents.push(...events);
-                processedChunks++;
-                
-                // 更新进度
-                progressBar.style.width = `${(processedChunks / totalChunks) * 100}%`;
-                statusEl.textContent = `加载中... ${processedChunks}/${totalChunks} (${allEvents.length}事件)`;
-                
-                // 定期更新播放器
-                if (allEvents.length > 0 && (allEvents.length % EVENT_BUFFER_SIZE === 0 || processedChunks === totalChunks)) {
-                  updatePlayer();
-                }
-              } else {
-                console.warn(`数据块 ${chunkId} 解压失败:`, result.error);
-              }
-            } catch (error) {
-              console.error(`处理数据块 ${chunkId} 时出错:`, error);
-            }
-          }
-        }
-      }
-    }
+        // Base64解码
+        const binary = atob(base64);
+        receivedBytes += binary.length;
 
-    // 获取总数据块数（用于进度显示）
-    async function fetchTotalChunks(sessionId) {
-      try {
-        const response = await fetch(`${BASE_URL}/gk-tools/record/read/${sessionId}`, {
-          method: 'HEAD'
+        // 转换为Uint8Array
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) {
+          bytes[i] = binary.charCodeAt(i);
+        }
+
+        // 解压
+        const jsonStr = pako.inflate(bytes, { 
+          to: 'string',
+          chunkSize: 1024 * 1024 // 1MB的chunk大小
         });
+
+        // JSON解析
+        const data = JSON.parse(jsonStr);
         
-        if (response.ok) {
-          const contentLength = response.headers.get('Content-Length');
-          if (contentLength) {
-            // 估算数据块数（假设每行平均大小）
-            return Math.ceil(parseInt(contentLength) / 1000);
+        // 验证数据格式
+        if (!Array.isArray(data)) {
+          throw new Error('解压后的数据不是有效的rrweb事件数组');
+        }
+
+        return data;
+      } catch (err) {
+        console.error('解压失败:', err);
+        throw new Error(`数据解压失败: ${err.message}`);
+      }
+    }
+
+    // 初始化播放器（严格遵循rrweb-player API）
+    function initPlayer(events) {
+      // 销毁现有实例
+      if (rrPlayer) {
+        try {
+          const replayer = rrPlayer.getReplayer();
+          if (replayer) {
+            replayer.pause();
+            replayer.service.send('FINISH');
+          }
+          rrPlayer.$destroy();
+        } catch (e) {
+          console.error('销毁播放器失败:', e);
+        }
+        rrPlayer = null;
+      }
+
+      // 移除placeholder
+      replayPlaceholder.style.display = 'none';
+
+      // 创建新实例
+      try {
+        rrPlayer = new rrwebPlayer({
+          target: replayEl,
+          props: {
+            events: events,
+            showController: true,
+            autoPlay: false,
+            mouseTail: false, // 大数据量时禁用
+            UNSAFE_replayCanvas: false, // 禁用实验性功能
+            triggerFocus: false,
+            unpackFn: (data) => data // 直接返回数据
+          }
+        });
+
+        // 正确的事件监听方式
+        const replayer = rrPlayer.getReplayer();
+        replayer.on('play', () => { isPlaying = true; });
+        replayer.on('pause', () => { isPlaying = false; });
+        replayer.on('finish', () => { isPlaying = false; });
+
+        // 性能优化
+        optimizePlayerPerformance(replayer);
+
+        return true;
+      } catch (err) {
+        console.error('播放器初始化失败:', err);
+        replayPlaceholder.style.display = 'block';
+        replayPlaceholder.textContent = '播放器初始化失败';
+        return false;
+      }
+    }
+
+    // 播放器性能优化
+    function optimizePlayerPerformance(replayer) {
+      if (!replayer) return;
+      
+      try {
+        // 官方推荐的性能优化配置
+        replayer.config.mouseTail = false;
+        replayer.config.speed = 1;
+        replayer.config.skipInactive = true;
+        
+        // 禁用非必要功能
+        if (replayer.service.state.context.mouseTail) {
+          replayer.service.state.context.mouseTail.disable();
+        }
+      } catch (e) {
+        console.warn('性能优化配置失败:', e);
+      }
+    }
+
+    // 处理数据块
+    function processChunk(events) {
+      if (!Array.isArray(events) || events.length === 0) return;
+
+      totalEvents += events.length;
+      chunkBuffer.push(...events);
+
+      // 达到块大小时处理
+      if (chunkBuffer.length >= CHUNK_SIZE) {
+        allEvents.push(...chunkBuffer);
+        
+        // 重新初始化播放器（rrweb-player不支持增量更新）
+        const success = initPlayer(allEvents);
+        
+        if (success) {
+          // 恢复播放状态
+          if (isPlaying) {
+            setTimeout(() => {
+              if (rrPlayer) rrPlayer.getReplayer().play();
+            }, 100);
           }
         }
-        return 100; // 默认值
-      } catch (error) {
-        console.warn('无法获取总数据块数:', error);
-        return 100;
+        
+        chunkBuffer = [];
       }
+
+      updateStatus();
+    }
+
+    // 刷新缓冲区
+    function flushBuffer() {
+      if (chunkBuffer.length > 0) {
+        allEvents.push(...chunkBuffer);
+        initPlayer(allEvents);
+        chunkBuffer = [];
+        updateStatus();
+      }
+    }
+
+    // 更新状态显示
+    function updateStatus() {
+      const memoryMB = (receivedBytes / 1024 / 1024).toFixed(2);
+      const progress = totalEvents > 0 ? Math.min(100, (allEvents.length / totalEvents * 100)).toFixed(1) : 0;
+      
+      statusEl.textContent = `已加载 ${allEvents.length} 条事件 (${memoryMB}MB)`;
+      progressFill.style.width = `${progress}%`;
+      
+      // 内存警告
+      if (receivedBytes > MEMORY_LIMIT * 0.8) {
+        statusEl.textContent += ' - 内存使用较高';
+        statusEl.className = 'error';
+      } else {
+        statusEl.className = 'loading';
+      }
+    }
+
+    // 重置状态
+    function reset() {
+      // 中止正在进行的请求
+      if (abortController) {
+        abortController.abort();
+        abortController = null;
+      }
+
+      // 清理播放器
+      if (rrPlayer) {
+        try {
+          rrPlayer.getReplayer()?.pause();
+          rrPlayer.$destroy();
+        } catch (e) {
+          console.error('重置播放器失败:', e);
+        }
+        rrPlayer = null;
+      }
+
+      // 重置状态
+      allEvents = [];
+      chunkBuffer = [];
+      isPlaying = false;
+      receivedBytes = 0;
+      totalEvents = 0;
+
+      // 重置UI
+      replayPlaceholder.style.display = 'block';
+      replayPlaceholder.textContent = '回放内容将在此显示';
+      statusEl.textContent = '已重置';
+      statusEl.className = 'loading';
+      progressBar.style.display = 'none';
+      progressFill.style.width = '0%';
+      startBtn.disabled = false;
+      buttonText.textContent = '开始回放';
+      buttonSpinner.style.display = 'none';
     }
 
     // 开始回放
-    async function startReplay() {
+    startBtn.addEventListener('click', async () => {
       const sessionId = sessionInput.value.trim();
       if (!sessionId) {
         statusEl.textContent = '⚠️ 请输入 Session ID';
         statusEl.className = 'error';
         return;
       }
-      
-      // 重置状态
-      isPaused = false;
-      isCancelled = false;
-      allEvents = [];
-      retryCount = 0;
-      processedChunks = 0;
-      totalChunks = 0;
-      
-      // UI 更新
+
+      // 准备状态
+      reset();
       startBtn.disabled = true;
       buttonText.textContent = '加载中...';
       buttonSpinner.style.display = 'inline-block';
-      progressEl.style.display = 'block';
-      progressBar.style.width = '0%';
-      controlsEl.style.display = 'flex';
-      replayEl.innerHTML = '';
+      progressBar.style.display = 'block';
       statusEl.textContent = '连接中...';
       statusEl.className = 'loading';
-      
+
+      abortController = new AbortController();
+
       try {
-        // 获取总数据块数估算值
-        totalChunks = await fetchTotalChunks(sessionId);
-        
-        // 开始获取数据
-        const response = await fetch(`${BASE_URL}/gk-tools/record/read/${sessionId}`);
+        const response = await fetch(`${BASE_URL}/gk-tools/record/read/${sessionId}`, {
+          signal: abortController.signal
+        });
         
         if (!response.ok) {
-          throw new Error(`HTTP 错误! 状态: ${response.status}`);
+          throw new Error(`服务器返回错误: ${response.status} ${response.statusText}`);
         }
-        
+
         if (!response.body) {
-          throw new Error('无法获取可读流');
+          throw new Error('您的浏览器不支持流式读取');
         }
-        
-        // 处理数据流
-        await processStream(response.body.getReader());
-        
-        // 最终更新播放器
-        if (!isCancelled && allEvents.length > 0) {
-          updatePlayer();
-          statusEl.textContent = `✅ 回放加载完成，共 ${allEvents.length} 个事件`;
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let buffer = '';
+
+        // 流式处理
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+
+          // 处理每一行
+          let idx;
+          while ((idx = buffer.indexOf('\n')) >= 0) {
+            const line = buffer.slice(0, idx).trim();
+            buffer = buffer.slice(idx + 1);
+
+            if (line && line.startsWith('data:') && line.trim() !== 'data:[DONE]') {
+              const dataStr = line.slice(5).trim();
+              if (dataStr) {
+                try {
+                  const events = decompressData(dataStr);
+                  processChunk(events);
+                } catch (err) {
+                  console.error('处理数据块时出错:', err);
+                  statusEl.textContent = `❌ 处理数据时出错: ${err.message}`;
+                  statusEl.className = 'error';
+                  // 继续处理已有数据
+                }
+              }
+            }
+          }
+        }
+
+        // 处理剩余数据
+        flushBuffer();
+
+        if (allEvents.length > 0) {
+          statusEl.textContent = `✅ 加载完成，共 ${allEvents.length} 条事件`;
           statusEl.className = 'success';
-        } else if (isCancelled) {
-          statusEl.textContent = '⏹ 加载已取消';
-          statusEl.className = 'loading';
-        }
-      } catch (error) {
-        console.error('回放失败:', error);
-        
-        if (retryCount < MAX_RETRIES && !isCancelled) {
-          retryCount++;
-          statusEl.textContent = `❌ 加载失败 (尝试 ${retryCount}/${MAX_RETRIES})...`;
-          await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
-          return startReplay();
+          
+          // 自动播放
+          setTimeout(() => {
+            if (rrPlayer && !isPlaying) {
+              rrPlayer.getReplayer().play();
+            }
+          }, 500);
         } else {
-          statusEl.textContent = `❌ 加载失败: ${error.message}`;
+          statusEl.textContent = '⚠️ 未获取到任何有效事件';
           statusEl.className = 'error';
         }
-      } finally {
-        // 重置 UI 状态
-        if (!isCancelled) {
-          startBtn.disabled = false;
-          buttonText.textContent = '开始回放';
-          buttonSpinner.style.display = 'none';
-          controlsEl.style.display = 'none';
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          statusEl.textContent = '已中止加载';
+          statusEl.className = 'loading';
+        } else {
+          console.error('加载失败:', err);
+          statusEl.textContent = `❌ 加载失败: ${err.message}`;
+          statusEl.className = 'error';
+          
+          // 尝试播放已加载部分
+          if (allEvents.length > 0) {
+            flushBuffer();
+            statusEl.textContent += ` (已加载 ${allEvents.length} 条事件)`;
+          }
         }
+      } finally {
+        abortController = null;
+        startBtn.disabled = false;
+        buttonText.textContent = '开始回放';
+        buttonSpinner.style.display = 'none';
       }
-    }
+    });
 
-    // 事件监听
-    startBtn.addEventListener('click', startReplay);
-    
-    pauseResumeBtn.addEventListener('click', () => {
-      isPaused = !isPaused;
-      pauseResumeBtn.textContent = isPaused ? '继续加载' : '暂停加载';
-      statusEl.textContent = isPaused ? '⏸ 加载已暂停' : '↻ 恢复加载...';
-    });
-    
-    cancelBtn.addEventListener('click', () => {
-      isCancelled = true;
-      startBtn.disabled = false;
-      buttonText.textContent = '开始回放';
-      buttonSpinner.style.display = 'none';
-      controlsEl.style.display = 'none';
-      statusEl.textContent = '⏹ 加载已取消';
-      statusEl.className = 'loading';
-    });
-    
-    // 页面卸载时清理
-    window.addEventListener('beforeunload', () => {
-      if (decompressionWorker) {
-        decompressionWorker.terminate();
-      }
-    });
+    // 重置按钮
+    resetBtn.addEventListener('click', reset);
+
+    // 初始化placeholder
+    replayPlaceholder.style.display = 'block';
   </script>
 </body>
 </html>
