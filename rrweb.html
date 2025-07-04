@@ -532,15 +532,6 @@
     if (!Array.isArray(events) || events.length === 0 || memoryExceeded) return;
 
     allEvents.push(...events);
-    
-    // 只在第一次或内存接近限制时初始化播放器
-    if (!rrPlayer || receivedBytes > MEMORY_LIMIT * 0.9) {
-      const success = initPlayer(allEvents);
-      if (success && isPlaying) {
-        setTimeout(() => rrPlayer.getReplayer().play(), 100);
-      }
-    }
-
     updateStatus();
   }
 
@@ -553,9 +544,27 @@
     if (memoryExceeded) {
       statusEl.textContent = `⚠️ 内存超过限制 (${memoryMB}MB)，已停止加载新数据`;
       statusEl.className = 'error';
+
+      // 只在第一次或内存接近限制时初始化播放器
+    if (!rrPlayer || receivedBytes > MEMORY_LIMIT * 0.9) {
+      const success = initPlayer(allEvents);
+      if (success && isPlaying) {
+        setTimeout(() => rrPlayer.getReplayer().play(), 100);
+      }
+    }
+
+
     } else if (final) {
       statusEl.textContent = `✅ 加载完成，共接收 ${receivedChunkCount}/${expectedTotalChunks || '?'} 块，${memoryMB}MB`;
       statusEl.className = 'success';
+
+      // 只在第一次或内存接近限制时初始化播放器
+    if (!rrPlayer || receivedBytes > MEMORY_LIMIT * 0.9) {
+      const success = initPlayer(allEvents);
+      if (success && isPlaying) {
+        setTimeout(() => rrPlayer.getReplayer().play(), 100);
+      }
+    }
     } else {
       statusEl.textContent = `已接收 ${receivedChunkCount}/${expectedTotalChunks || '?'} 块，${memoryMB}MB`;
       statusEl.className = receivedBytes > MEMORY_LIMIT * 0.8 ? 'error' : 'loading';
