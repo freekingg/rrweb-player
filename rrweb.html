@@ -304,7 +304,7 @@
     
     <div class="control-row">
       <div class="input-group">
-        <label class="label" for="sessionInput">Session ID</label>
+        <label class="label" for="sessionInput">UID</label>
         <input class="input" id="sessionInput" placeholder="例如：abc-123" />
       </div>
       <button class="button" id="startBtn">
@@ -610,7 +610,7 @@
   startBtn.addEventListener('click', async () => {
     const sessionId = sessionInput.value.trim();
     if (!sessionId) {
-      statusEl.textContent = '⚠️ 请输入 Session ID';
+      statusEl.textContent = '⚠️ 请输入 UID';
       statusEl.className = 'error';
       return;
     }
@@ -719,6 +719,37 @@
 
   resetBtn.addEventListener('click', reset);
   replayPlaceholder.style.display = 'block';
+
+  function getUidFromUrl() {
+  // 获取当前页面的URL
+  const url = window.location.href;
+  
+  // 分割URL，处理可能存在的哈希部分
+  const urlParts = url.split('#');
+  const queryString = urlParts[0].split('?')[1] || '';
+  
+  if (!queryString) {
+    return null; // 没有查询参数
+  }
+  
+  // 解析查询参数
+  const params = new URLSearchParams(queryString);
+  
+  // 获取uid参数值
+  const uid = params.get('uid');
+  
+  // 如果存在uid参数则返回，否则返回null
+  return uid !== null ? uid : null;
+}
+
+window.onload = function() {
+  const uid = getUidFromUrl();
+  if (uid) {
+    sessionInput.value = uid;
+  }
+}
+
+
 </script>
 
 </body>
